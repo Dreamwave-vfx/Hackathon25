@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import { X } from "lucide-react";
 import Navbar from "../components/navbar";
 import { db } from "../Auth/config-firebase";
-import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
-import { useNavigate } from "react-router-dom";
+import { collection, addDoc } from "firebase/firestore";
 
 function Listitem() {
   const [images, setImages] = useState([]);
+  const [files, setFiles] = useState([]);
   const [tags, setTags] = useState([]);
   const [newTag, setNewTag] = useState("");
   const [formData, setFormData] = useState({
@@ -19,36 +19,69 @@ function Listitem() {
   });
 
   const updateFormData = (field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const uploadImagesToCloudinary = async (files) => {
+    const cloudName = "dhtge1ocz";
+    const uploadPreset = "clothimgs";
+
+    const uploadedUrls = [];
+    for (let i = 0; i < files.length && i < 5; i++) {
+      const formData = new FormData();
+      formData.append("file", files[i]);
+      formData.append("upload_preset", uploadPreset);
+
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloudName}/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+      const data = await res.json();
+      uploadedUrls.push(data.secure_url);
+    }
+    return uploadedUrls;
   };
 
   const addProduct = async () => {
     try {
+      const uid = localStorage.getItem("uid");
+      if (!uid) return alert("You must be logged in");
+
+      const uploadedUrls = await uploadImagesToCloudinary(files);
+
       await addDoc(collection(db, "Products"), {
-        title: formData.title,
-        description: formData.description,
-        category: formData.category,
-        type: formData.type,
-        size: formData.size,
-        condition: formData.condition,
+        ...formData,
+        tags,
+        images: uploadedUrls,
+        uid,
+        createdAt: new Date(),
       });
-      alert("Product is uploaded");
+
+      alert("Product uploaded successfully!");
+      setFormData({
+        title: "",
+        description: "",
+        category: "",
+        type: "",
+        size: "",
+        condition: "",
+      });
+      setTags([]);
+      setImages([]);
+      setFiles([]);
     } catch (err) {
-      alert(err);
+      alert("Error uploading product: " + err.message);
     }
   };
 
   const handleImage = (e) => {
-    const files = e.target.files;
-    if (files) {
-      const newImages = Array.from(files).map((file) =>
-        URL.createObjectURL(file)
-      );
-      setImages((prev) => [...prev, ...newImages].slice(0, 5)); // Max 5 images
-    }
+    const selectedFiles = Array.from(e.target.files).slice(0, 5);
+    setFiles(selectedFiles);
+    const previews = selectedFiles.map((file) => URL.createObjectURL(file));
+    setImages(previews);
   };
 
   const addTag = () => {
@@ -145,6 +178,7 @@ function Listitem() {
               required
             />
           </div>
+
           <div className="space-y-2">
             <label>Category *</label>
             <select
@@ -212,7 +246,13 @@ function Listitem() {
             </div>
           )}
         </div>
-        <button onClick={addProduct}>Upload Product</button>
+
+        <button
+          onClick={addProduct}
+          className="mt-6 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          Upload Product
+        </button>
       </div>
     </>
   );
