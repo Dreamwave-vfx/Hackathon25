@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Navbar from "../components/Navbar";
+import Navbar from "../components/navbar";
 import Footer from "../components/Footer";
 import {
   ArrowRight,
@@ -76,11 +76,13 @@ const Home = () => {
         {/* Hero */}
         <section className="bg-gradient-to-b from-green-50 to-white py-20 text-center">
           <h1 className="text-4xl sm:text-5xl font-extrabold">
-            Give Your Clothes a <span className="text-green-600">Second Life</span>
+            Give Your Clothes a{" "}
+            <span className="text-green-600">Second Life</span>
           </h1>
           <p className="mt-4 max-w-2xl mx-auto">
-            Join ReWear's community-driven clothing exchange. Swap, redeem, and discover pre-loved fashion
-            while making a positive impact on the environment.
+            Join ReWear's community-driven clothing exchange. Swap, redeem, and
+            discover pre-loved fashion while making a positive impact on the
+            environment.
           </p>
           <div className="mt-6 flex justify-center gap-4">
             <a
@@ -126,7 +128,9 @@ const Home = () => {
         <section className="py-16 px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
             <h2 className="text-3xl font-bold">Featured Items</h2>
-            <p className="mt-2">Discover amazing pre-loved fashion from our community</p>
+            <p className="mt-2">
+              Discover amazing pre-loved fashion from our community
+            </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
@@ -179,7 +183,9 @@ const Home = () => {
         <section className="py-16 bg-white px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold">How ReWear Works</h2>
-            <p className="mt-2 text-gray-600">Simple steps to start your sustainable fashion journey</p>
+            <p className="mt-2 text-gray-600">
+              Simple steps to start your sustainable fashion journey
+            </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 max-w-6xl mx-auto text-center">
