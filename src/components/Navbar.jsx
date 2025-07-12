@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { ShoppingBag, Menu } from "lucide-react";
 import { signInWithGoogle } from "../Auth/config-firebase";
 
-const Navbar = () => {
+function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [signIn, setSignIn] = useState(false);
 
@@ -122,6 +122,6 @@ const Navbar = () => {
       </div>
     </nav>
   );
-};
+}
 
 export default Navbar;
