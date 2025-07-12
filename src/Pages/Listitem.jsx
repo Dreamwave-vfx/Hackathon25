@@ -1,5 +1,10 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
+import { X } from "lucide-react";
+import Navbar from "../components/navbar";
+import { db } from "../Auth/config-firebase";
+import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
+
 function Listitem() {
   const [images, setImages] = useState([]);
   const [tags, setTags] = useState([]);
@@ -11,13 +16,34 @@ function Listitem() {
     type: "",
     size: "",
     condition: "",
-    estimatedPoints: 0,
   });
+
+  const updateFormData = (field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const addProduct = async () => {
+    try {
+      await addDoc(collection(db, "Products"), {
+        title: formData.title,
+        description: formData.description,
+        category: formData.category,
+        type: formData.type,
+        size: formData.size,
+        condition: formData.condition,
+      });
+      alert("Product is uploaded");
+    } catch (err) {
+      alert(err);
+    }
+  };
 
   const handleImage = (e) => {
     const files = e.target.files;
     if (files) {
-      // In a real app, you'd  to a service and get URLs
       const newImages = Array.from(files).map((file) =>
         URL.createObjectURL(file)
       );
@@ -25,61 +51,123 @@ function Listitem() {
     }
   };
 
+  const addTag = () => {
+    const trimmed = newTag.trim();
+    if (trimmed && !tags.includes(trimmed) && tags.length < 10) {
+      setTags((prev) => [...prev, trimmed]);
+      setNewTag("");
+    }
+  };
+
+  const removeTag = (tagToRemove) => {
+    setTags((prev) => prev.filter((tag) => tag !== tagToRemove));
+  };
+
+  const categories = [
+    "Tops",
+    "Bottoms",
+    "Dresses",
+    "Outerwear",
+    "Shoes",
+    "Accessories",
+    "Activewear",
+    "Sleepwear",
+  ];
+
   if (!localStorage.getItem("uid")) {
     return (
-      <div>
-        <h1>Please Login first</h1>
+      <div className="p-6">
+        <h1 className="text-red-500 text-xl font-semibold">
+          Please login first.
+        </h1>
       </div>
     );
   }
+
   return (
-    <div>
-      <h1> a product</h1>
-      <div>
-        <h1>Photo</h1>
-        <h4 className="aspect-square m-[10px] sm:w-100 rounded-lg border-2 border-dashed border-muted-foreground/25 flex flex-col items-center justify-center cursor-pointer hover:border-muted-foreground/50 transition-colors">
-          <span className="text-sm text-muted-foreground text-center">
-            Add Photo
-          </span>
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            className="hidden"
-            onChange={handleImage}
-          />
-        </h4>
-      </div>
-      <div>
-        <h1>Details</h1>
-        <div className="space-y-2">
-          <h4>Title *</h4>
-          <input
-            id="title"
-            placeholder="e.g., Vintage Denim Jacket"
-            value={formData.title}
-            onChange={(e) => updateFormData("title", e.target.value)}
-            required
-          />
+    <>
+      <Navbar />
+      <div className="p-4">
+        <h1 className="text-xl font-bold my-4">List a Product</h1>
+
+        {/* Image Upload */}
+        <div>
+          <h2 className="text-lg font-semibold mb-2">Photos</h2>
+          <label className="aspect-square m-[10px] sm:w-100 rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-gray-400 transition-colors">
+            <span className="text-sm text-gray-500 text-center">
+              Add Photos
+            </span>
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              className="hidden"
+              onChange={handleImage}
+            />
+          </label>
+          <div className="flex gap-2 flex-wrap mt-2">
+            {images.map((src, i) => (
+              <img
+                key={i}
+                src={src}
+                alt={`preview-${i}`}
+                className="w-24 h-24 object-cover rounded border"
+              />
+            ))}
+          </div>
         </div>
 
-        <div className="space-y-2">
-          <h4>Description *</h4>
-          <textarea
-            id="description"
-            placeholder="Describe the item, its condition, brand, and any other relevant details..."
-            rows={4}
-            value={formData.description}
-            onChange={(e) => updateFormData("description", e.target.value)}
-            required
-          />
-        </div>
+        {/* Details */}
+        <div className="mt-6">
+          <h2 className="text-lg font-semibold mb-2">Details</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <h4 htmlFor="size">Size *</h4>
+            <label htmlFor="title">Title *</label>
+            <input
+              id="title"
+              className="border rounded px-2 py-1 w-full"
+              placeholder="e.g., Vintage Denim Jacket"
+              value={formData.title}
+              onChange={(e) => updateFormData("title", e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="space-y-2 mt-4">
+            <label htmlFor="description">Description *</label>
+            <textarea
+              id="description"
+              className="border rounded px-2 py-1 w-full"
+              placeholder="Describe the item, brand, condition..."
+              rows={4}
+              value={formData.description}
+              onChange={(e) => updateFormData("description", e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <label>Category *</label>
+            <select
+              id="category"
+              className="border border-gray-300 rounded px-3 py-2 w-full"
+              value={formData.category}
+              onChange={(e) => updateFormData("category", e.target.value)}
+              required
+            >
+              <option value="">Select category</option>
+              {categories.map((category) => (
+                <option key={category} value={category.toLowerCase()}>
+                  {category}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="space-y-2 mt-4">
+            <label htmlFor="size">Size *</label>
             <input
               id="size"
+              className="border rounded px-2 py-1 w-full"
               placeholder="e.g., M, 32, 8"
               value={formData.size}
               onChange={(e) => updateFormData("size", e.target.value)}
@@ -87,17 +175,46 @@ function Listitem() {
             />
           </div>
         </div>
+
+        {/* Tags */}
+        <div className="mt-6">
+          <h2 className="text-lg font-semibold mb-2">Tags</h2>
+          <div className="flex gap-2 mb-2">
+            <input
+              type="text"
+              placeholder="Enter a tag"
+              className="border px-2 py-1 rounded"
+              value={newTag}
+              onChange={(e) => setNewTag(e.target.value)}
+            />
+            <button
+              onClick={addTag}
+              className="bg-green-600 text-white px-3 py-1 rounded"
+            >
+              Add
+            </button>
+          </div>
+
+          {tags.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {tags.map((tag) => (
+                <div
+                  key={tag}
+                  className="inline-flex items-center gap-1 bg-gray-200 text-sm text-gray-800 px-3 py-1 rounded-full"
+                >
+                  {tag}
+                  <X
+                    className="h-3 w-3 text-gray-600 hover:text-red-500 cursor-pointer"
+                    onClick={() => removeTag(tag)}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        <button onClick={addProduct}>Upload Product</button>
       </div>
-      <div>
-        <h1>Tags</h1>
-        <input
-          id="size"
-          placeholder="e.g., M, 32, 8"
-          value={formData.size}
-          onChange={(e) => updateFormData("size", e.target.value)}
-        />
-      </div>
-    </div>
+    </>
   );
 }
 

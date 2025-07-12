@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { ShoppingBag, Menu } from "lucide-react";
-import { signInWithGoogle } from "../Auth/config-firebase";
-
+import { doc, getDoc } from "firebase/firestore";
+import { signInWithGoogle, db } from "../Auth/config-firebase";
+import { useNavigate } from "react-router-dom";
 function Navbar() {
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [signIn, setSignIn] = useState(false);
 
@@ -26,9 +28,17 @@ function Navbar() {
 
   const handleLogin = async () => {
     try {
-      const result = await signInWithGoogle();
-      localStorage.setItem("user", JSON.stringify(result.user));
-      setSignIn(true);
+      const user = await signInWithGoogle(); // now user is valid
+      const uid = user.uid;
+
+      const userDocRef = doc(db, "Users", uid);
+      const userDocSnap = await getDoc(userDocRef);
+
+      if (userDocSnap.exists()) {
+        window.location.reload();
+      } else {
+        navigate("/login");
+      }
     } catch (error) {
       console.error("Login failed", error);
     }
