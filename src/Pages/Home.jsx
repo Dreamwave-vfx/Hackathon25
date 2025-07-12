@@ -60,6 +60,9 @@ const Home = () => {
   ];
 
   return (
+    <div>
+      <Navbar />
+      <h1 className="text-3xl font-bold underline">Hello world!</h1>
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar user={user} onLogout={handleLogout} />
 

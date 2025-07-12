@@ -1,19 +1,37 @@
-import React, { useState } from "react";
-import { ShoppingBag, User, Menu } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { ShoppingBag, Menu } from "lucide-react";
+import { signInWithGoogle } from "../Auth/config-firebase";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [signIn, setSignIn] = useState(false);
+
+  // Check if user is logged in from localStorage
+  useEffect(() => {
+    const user = localStorage.getItem("uid");
+    if (user) setSignIn(true);
+  }, []);
 
   const navigation = [
-    { name: "Browse Items", href: "/" },
-    { name: "My Dashboard", href: "/dashboard" },
-    { name: "Add Item", href: "/add-item" },
-    { name: "How It Works", href: "/how-it-works" },
+    { name: "Home", href: "/" },
+    { name: "Exchange", href: "/shop" },
+    { name: "Add Item", href: "/additem" },
+    { name: "My Account", href: "/dashboard" },
   ];
 
-  const user = {
-    name: "John Doe",
-    points: 150,
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    setSignIn(false);
+  };
+
+  const handleLogin = async () => {
+    try {
+      const result = await signInWithGoogle();
+      localStorage.setItem("user", JSON.stringify(result.user));
+      setSignIn(true);
+    } catch (error) {
+      console.error("Login failed", error);
+    }
   };
 
   return (
@@ -27,6 +45,7 @@ const Navbar = () => {
             <span className="text-2xl font-bold text-gray-900">ReWear</span>
           </a>
 
+          {/* Desktop Navigation */}
           <div className="hidden md:flex gap-8">
             {navigation.map((item) => (
               <a
@@ -39,21 +58,26 @@ const Navbar = () => {
             ))}
           </div>
 
+          {/* Desktop Login/Logout */}
           <div className="hidden md:flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 bg-green-100 rounded-full flex items-center justify-center">
-                <User className="h-5 w-5 text-green-600" />
-              </div>
-              <span className="text-sm font-medium text-gray-800">{user.name}</span>
-              <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-semibold">
-                {user.points} pts
-              </span>
-            </div>
-            <button className="border border-gray-300 text-black text-sm px-4 py-1.5 rounded-md hover:bg-gray-100 shadow-sm transition duration-200">
-              Logout
-            </button>
+            {!signIn ? (
+              <button
+                onClick={handleLogin}
+                className="mt-2 border border-gray-300 text-black text-sm px-4 py-1.5 rounded-md hover:bg-gray-100 transition mx-2"
+              >
+                LogIn
+              </button>
+            ) : (
+              <button
+                onClick={handleLogout}
+                className="border border-gray-300 text-black text-sm px-4 py-1.5 rounded-md hover:bg-gray-100 shadow-sm transition duration-200"
+              >
+                Logout
+              </button>
+            )}
           </div>
 
+          {/* Mobile Menu Button */}
           <div className="md:hidden">
             <button onClick={() => setMenuOpen(!menuOpen)}>
               <Menu className="h-6 w-6 text-gray-800" />
@@ -61,6 +85,7 @@ const Navbar = () => {
           </div>
         </div>
 
+        {/* Mobile Dropdown Menu */}
         {menuOpen && (
           <div className="md:hidden mt-4 pb-4 border-t pt-4 flex flex-col gap-4">
             {navigation.map((item) => (
@@ -74,19 +99,24 @@ const Navbar = () => {
               </a>
             ))}
 
-            <div className="flex items-center gap-2 mt-2 px-2">
-              <div className="h-8 w-8 bg-green-100 rounded-full flex items-center justify-center">
-                <User className="h-5 w-5 text-green-600" />
-              </div>
-              <span className="text-sm font-medium text-gray-800">{user.name}</span>
-              <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-semibold">
-                {user.points} pts
-              </span>
+            {/* Mobile Login/Logout - FIXED: changed from hidden to flex */}
+            <div className="flex items-center gap-4 px-2">
+              {!signIn ? (
+                <button
+                  onClick={handleLogin}
+                  className="mt-2 border border-gray-300 text-black text-sm px-4 py-1.5 rounded-md hover:bg-gray-100 transition mx-2"
+                >
+                  LogIn
+                </button>
+              ) : (
+                <button
+                  onClick={handleLogout}
+                  className="border border-gray-300 text-black text-sm px-4 py-1.5 rounded-md hover:bg-gray-100 shadow-sm transition duration-200"
+                >
+                  Logout
+                </button>
+              )}
             </div>
-
-            <button className="mt-2 border border-gray-300 text-black text-sm px-4 py-1.5 rounded-md hover:bg-gray-100 transition mx-2">
-              Logout
-            </button>
           </div>
         )}
       </div>
