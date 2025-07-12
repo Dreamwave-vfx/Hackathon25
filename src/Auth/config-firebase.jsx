@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, doc, getDoc } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBJUIfAAQp7LcZ5_-QdmJrePQODa__SwKg",
@@ -16,18 +16,19 @@ const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
-export const signInWithGoogle = () => {
-  signInWithPopup(auth, provider)
-    .then((result) => {
-      const email = result.user.email;
-      const uid = result.user.uid;
-      const profilePic = result.user.photoURL;
-      localStorage.setItem("email", email);
-      localStorage.setItem("uid", uid);
-      localStorage.setItem("profilePic", profilePic);
-      window.location.href = "/";
-    })
-    .catch((error) => {
-      console.log(error);
-    });
+export const signInWithGoogle = async () => {
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+
+    // Save to localStorage
+    localStorage.setItem("email", user.email);
+    localStorage.setItem("uid", user.uid);
+    localStorage.setItem("profilePic", user.photoURL);
+
+    return user; // ✅ VERY IMPORTANT
+  } catch (error) {
+    console.error("Sign-in failed:", error);
+    throw error;
+  }
 };
