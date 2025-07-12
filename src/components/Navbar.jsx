@@ -3,6 +3,7 @@ import { ShoppingBag, Menu } from "lucide-react";
 import { doc, getDoc } from "firebase/firestore";
 import { signInWithGoogle, db } from "../Auth/config-firebase";
 import { useNavigate } from "react-router-dom";
+import { FcGoogle } from "react-icons/fc";
 function Navbar() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -22,7 +23,7 @@ function Navbar() {
   ];
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
+    localStorage.clear();
     setSignIn(false);
   };
 
@@ -73,8 +74,9 @@ function Navbar() {
             {!signIn ? (
               <button
                 onClick={handleLogin}
-                className="mt-2 border border-gray-300 text-black text-sm px-4 py-1.5 rounded-md hover:bg-gray-100 transition mx-2"
+                className="mt-2 border border-gray-300 text-black text-sm px-4 py-1.5 rounded-md hover:bg-gray-100 transition mx-2 flex items-center gap-2"
               >
+                <FcGoogle className="h-5 w-5" />
                 LogIn
               </button>
             ) : (
@@ -114,8 +116,9 @@ function Navbar() {
               {!signIn ? (
                 <button
                   onClick={handleLogin}
-                  className="mt-2 border border-gray-300 text-black text-sm px-4 py-1.5 rounded-md hover:bg-gray-100 transition mx-2"
+                  className="mt-2 border border-gray-300 text-black text-sm px-4 py-1.5 rounded-md hover:bg-gray-100 transition mx-2 flex items-center gap-2"
                 >
+                  <FcGoogle className="h-5 w-5" />
                   LogIn
                 </button>
               ) : (

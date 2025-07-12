@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import Navbar from "../components/navbar";
 import Footer from "../components/Footer";
+import img1 from "../assets/1.jpeg";
+import img2 from "../assets/2.webp";
+import img3 from "../assets/3.jpeg";
+import img4 from "../assets/4.jpeg";
 import {
   ArrowRight,
   Recycle,
@@ -26,6 +30,7 @@ const Home = () => {
       id: 1,
       title: "Vintage Denim Jacket",
       category: "Outerwear",
+      img: img1,
       size: "M",
       condition: "Excellent",
       points: 25,
@@ -37,6 +42,7 @@ const Home = () => {
       id: 2,
       title: "Designer Summer Dress",
       category: "Dresses",
+      img: img2,
       size: "S",
       condition: "Like New",
       points: 35,
@@ -48,6 +54,7 @@ const Home = () => {
       id: 3,
       title: "Casual Sneakers",
       category: "Shoes",
+      img: img3,
       size: "9",
       condition: "Good",
       points: 20,
@@ -59,6 +66,7 @@ const Home = () => {
       id: 4,
       title: "Wool Winter Coat",
       category: "Outerwear",
+      img: img4,
       size: "L",
       condition: "Very Good",
       points: 40,
@@ -86,13 +94,13 @@ const Home = () => {
           </p>
           <div className="mt-6 flex justify-center gap-4">
             <a
-              href="/add-item"
+              href="/additem"
               className="bg-green-600 text-white px-6 py-3 rounded-md text-sm font-semibold hover:bg-green-700 transition inline-flex items-center"
             >
               Start Swapping <ArrowRight className="ml-2 w-4 h-4" />
             </a>
             <a
-              href="/browse"
+              href="/shop"
               className="border border-gray-300 text-black px-6 py-3 rounded-md text-sm font-semibold hover:bg-gray-100 transition"
             >
               Browse Items
@@ -139,8 +147,8 @@ const Home = () => {
                 key={item.id}
                 className="bg-white rounded-xl shadow-sm border hover:shadow-md transition"
               >
-                <div className="h-44 bg-gray-100 flex items-center justify-center text-gray-400 text-sm">
-                  <span>No image</span>
+                <div className="h-44 bg-gray-100 flex items-center justify-center text-gray-400 text-sm overflow-hidden">
+                  <img src={item.img} alt="Google Logo" />
                 </div>
                 <div className="p-4">
                   <span className="text-xs bg-green-600 text-white px-2 py-1 rounded-full font-semibold">
@@ -158,7 +166,7 @@ const Home = () => {
                   </div>
                   <p className="text-xs text-gray-500 mt-1">by {item.user}</p>
                   <a
-                    href="#"
+                    href="/shop"
                     className="mt-4 inline-block bg-green-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-green-700 transition"
                   >
                     View Item
@@ -171,7 +179,7 @@ const Home = () => {
           {/* View All Items Button */}
           <div className="mt-8 text-center">
             <a
-              href="/exchange"
+              href="/shop"
               className="inline-block border border-gray-300 px-6 py-3 rounded-md text-sm font-semibold text-black hover:bg-gray-100 transition"
             >
               View All Items
